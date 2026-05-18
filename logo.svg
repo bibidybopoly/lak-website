@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 46" role="img" aria-label="Lak">
+  <title>Lak</title>
+  <rect x="1" y="1" width="42" height="42" rx="7" fill="#ffffff" stroke="#1d1d1f" stroke-width="1.5"/>
+  <rect x="5" y="5" width="34" height="34" rx="4" fill="none" stroke="#d6cdb6" stroke-width="0.8"/>
+  <text x="22" y="32" font-family="'JetBrains Mono','SF Mono',Menlo,Consolas,monospace" font-size="26" font-weight="700" text-anchor="middle" fill="#1d1d1f">L</text>
+  <text x="50" y="37" font-family="'Source Serif Pro', Georgia, 'Times New Roman', serif" font-size="40" font-weight="600" fill="#1d1d1f">ak</text>
+</svg>

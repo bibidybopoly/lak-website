@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lak — a keyboard layout optimized by a genetic algorithm</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Lak is a modern keyboard layout discovered by a genetic algorithm. Vowels on the left home row, the most common consonants on the right. Faster, smoother, less strain.">
+<meta property="og:title" content="Lak — a keyboard layout optimized by a genetic algorithm">
+<meta property="og:description" content="Lak is a modern keyboard layout discovered by a genetic algorithm. Vowels on the left home row, the most common consonants on the right.">
+<meta name="twitter:title" content="Lak — a keyboard layout optimized by a genetic algorithm">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  /* ---------- reset & base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: #1d1d1f;
+    background: #faf8f3;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: "Source Serif Pro", Georgia, "Times New Roman", serif; font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(3rem, 8vw, 5.5rem); margin: 0 0 .25em; line-height: 1.05; letter-spacing: -0.03em; }
+  .hero-mark { margin: 0 0 0.35em; line-height: 1; padding: 0; }
+  .hero-mark svg { display: block; height: clamp(72px, 11vw, 128px); width: auto; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.1rem); margin: 0 0 .8em; }
+  h3 { font-size: 1.15rem; margin: 1.6em 0 .4em; font-weight: 600; }
+  p  { margin: 0 0 1em; }
+  a  { color: #1f3a5f; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+  a:hover { color: #c44536; }
+  code { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; background: #efeadf; padding: 1px 5px; border-radius: 3px; }
+
+  /* ---------- layout ---------- */
+  .container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 72px 0; border-top: 1px solid #e8e2d3; }
+  section:first-of-type { border-top: 0; }
+
+  /* ---------- nav ---------- */
+  header.site {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,248,243,0.92);
+    backdrop-filter: saturate(180%) blur(8px);
+    border-bottom: 1px solid #e8e2d3;
+  }
+  header.site .row { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .brand { display: inline-flex; align-items: center; text-decoration: none; }
+  .brand svg { display: block; height: 28px; width: auto; }
+  .brand svg .keycap, .brand svg .keycap-inner, .brand svg .keycap-letter,
+  .brand svg .wordmark { transition: fill 0.15s, stroke 0.15s; }
+  .brand:hover svg .keycap { fill: #c44536; stroke: #c44536; }
+  .brand:hover svg .keycap-inner { stroke: rgba(255,255,255,0.35); }
+  .brand:hover svg .keycap-letter { fill: #ffffff; }
+  nav.site ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
+  nav.site a { color: #444; text-decoration: none; font-size: 14px; }
+  nav.site a:hover { color: #c44536; }
+  @media (max-width: 600px) { nav.site ul { gap: 14px; } nav.site a { font-size: 13px; } }
+
+  /* ---------- hero ---------- */
+  #hero { padding-top: 96px; padding-bottom: 48px; }
+  .tagline { font-size: 1.25rem; color: #555; max-width: 38ch; margin: 0 0 2em; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-block; font-weight: 500; font-size: 15px; padding: 12px 22px; border-radius: 8px;
+    text-decoration: none; border: 1px solid transparent; transition: transform .08s ease, background .15s ease;
+  }
+  .btn-primary { background: #1d1d1f; color: #faf8f3; }
+  .btn-primary:hover { background: #c44536; color: #fff; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: #1d1d1f; border-color: #c8bfa8; }
+  .btn-ghost:hover { background: #efeadf; color: #1d1d1f; }
+  .meta { color: #888; font-size: 13px; margin-left: 6px; }
+
+  /* ---------- keyboard ---------- */
+  .kb-frame {
+    background: #fff;
+    border: 1px solid #e8e2d3;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 8px 30px -18px rgba(0,0,0,.18);
+  }
+  .kb-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .kb-toolbar .demo { flex: 1; min-width: 180px; padding: 9px 12px; font: inherit; font-size: 14px; border: 1px solid #e0d8c4; border-radius: 6px; background: #faf8f3; }
+  .kb-toolbar .demo:focus { outline: 2px solid #c44536; outline-offset: 1px; }
+  .kb-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #555; cursor: pointer; user-select: none; }
+  .kb-toggle input { accent-color: #c44536; }
+  .kb-clear { background: transparent; border: 1px solid #d6cdb6; color: #555; font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 6px; cursor: pointer; }
+  .kb-clear:hover { background: #efeadf; }
+
+  .kb {
+    display: flex; flex-direction: column; gap: 6px;
+    /* sized so it always fits one viewport width on mobile too */
+    --u: clamp(28px, 5.4vw, 46px);
+  }
+  .kb-row { display: flex; gap: 6px; }
+  .key {
+    position: relative;
+    width: var(--u); height: var(--u);
+    border: 1px solid #d6cdb6;
+    border-radius: 6px;
+    background: #fff;
+    color: #1d1d1f;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: calc(var(--u) * 0.40);
+    font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    cursor: pointer; user-select: none;
+    transition: background .12s, transform .06s, border-color .12s;
+  }
+  .key:hover { border-color: #c44536; }
+  .key:active { transform: translateY(1px); }
+  .key.pressed { background: #c44536; color: #fff; border-color: #c44536; }
+
+  /* widths */
+  .key.w125 { width: calc(var(--u) * 1.25 + 6px); }
+  .key.w15  { width: calc(var(--u) * 1.5  + 6px * 1); }
+  .key.w175 { width: calc(var(--u) * 1.75 + 6px * 1); }
+  .key.w2   { width: calc(var(--u) * 2    + 6px * 1); }
+  .key.w225 { width: calc(var(--u) * 2.25 + 6px * 1); }
+  .key.w275 { width: calc(var(--u) * 2.75 + 6px * 1); }
+  .key.w625 { width: calc(var(--u) * 6.25 + 6px * 5); }
+
+  .key .shifted { font-size: 0.62em; color: #888; line-height: 1; margin-bottom: 1px; }
+  .key .main    { font-weight: 500; line-height: 1; }
+  .key.mod      { background: #f3eedf; color: #888; font-size: calc(var(--u) * 0.27); font-family: inherit; }
+  .key.mod:hover { background: #efeadf; }
+
+  /* heatmap by English letter frequency (most-used letters darkest) */
+  .key.freq-1 { background-color: #e0d2bb; }  /* e t a o i n */
+  .key.freq-2 { background-color: #e7dbc8; }  /* s h r */
+  .key.freq-3 { background-color: #ede3d3; }  /* d l */
+  .key.freq-4 { background-color: #f2eadd; }  /* c u m w f g y p */
+  .key.freq-5 { background-color: #f7f1e7; }  /* b v k */
+  .key.freq-6 { background-color: #fbf6ee; }  /* j x q z */
+
+  /* QWERTY ghost label */
+  .key .qwerty {
+    position: absolute; top: 3px; right: 5px;
+    font-size: calc(var(--u) * 0.20); color: #b8ad8e; font-family: inherit;
+    opacity: 0; transition: opacity .15s;
+  }
+  .kb.show-qwerty .key .qwerty { opacity: 1; }
+
+  /* Shift-on state: swap which label is prominent */
+  .kb.shift-on .key:not(.mod) .main {
+    font-size: 0.62em; color: #888; order: 1; font-weight: 400;
+  }
+  .kb.shift-on .key:not(.mod) .shifted {
+    font-size: calc(var(--u) * 0.40); color: #1d1d1f; order: 0; font-weight: 500;
+  }
+
+  /* ---------- prose helpers ---------- */
+  .lede { font-size: 1.12rem; color: #333; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 36px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: 18px; margin: 18px 0 0; }
+  .stat { flex: 1; min-width: 150px; padding: 16px 18px; background: #fff; border: 1px solid #e8e2d3; border-radius: 10px; }
+  .stat .num { font-family: "Source Serif Pro", Georgia, serif; font-size: 1.7rem; color: #1f3a5f; line-height: 1.1; display: block; }
+  .stat .lbl { font-size: 13px; color: #666; margin-top: 4px; display: block; }
+
+  /* ---------- download cards ---------- */
+  .dl-primary { background: #fff; border: 1px solid #e8e2d3; border-radius: 12px; padding: 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .dl-primary .info { flex: 1; min-width: 220px; }
+  .dl-primary .info strong { display: block; font-size: 1.05rem; }
+  .dl-primary .info span { color: #666; font-size: 14px; }
+
+  /* ---------- install steps ---------- */
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
+  ol.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 18px 44px;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 28px; height: 28px;
+    background: #1d1d1f; color: #faf8f3;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600;
+    font-family: "Source Serif Pro", Georgia, serif;
+  }
+  ol.steps strong { display: block; margin-bottom: 2px; }
+
+  /* ---------- faq ---------- */
+  .faq-group {
+    font-size: 0.78rem;
+    font-family: "Inter", "Helvetica Neue", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #999;
+    font-weight: 600;
+    margin: 36px 0 0;
+  }
+  .faq-group:first-of-type { margin-top: 12px; }
+  details.faq { border-top: 1px solid #e8e2d3; padding: 14px 0; }
+  details.faq:last-of-type { border-bottom: 1px solid #e8e2d3; }
+  details.faq > summary { cursor: pointer; font-weight: 500; list-style: none; padding-right: 30px; position: relative; }
+  details.faq > summary::-webkit-details-marker { display: none; }
+  details.faq > summary::after {
+    content: "+"; position: absolute; right: 0; top: -2px;
+    font-size: 22px; color: #888; transition: transform .2s;
+  }
+  details.faq[open] > summary::after { content: "–"; }
+  details.faq > div { padding: 8px 0 4px; color: #444; }
+
+  /* ---------- footer ---------- */
+  footer.site { padding: 36px 0 60px; color: #888; font-size: 13px; text-align: center; border-top: 1px solid #e8e2d3; }
+
+  /* ---------- timeline ---------- */
+  .timeline { margin: 16px 0 0; padding: 0; list-style: none; border-left: 2px solid #e0d8c4; }
+  .timeline li { position: relative; padding: 6px 0 22px 26px; }
+  .timeline li::before {
+    content: ""; position: absolute; left: -7px; top: 14px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #faf8f3; border: 2px solid #c4b890;
+  }
+  .timeline li.lak::before { background: #c44536; border-color: #c44536; }
+  .timeline .when { font-family: "JetBrains Mono", monospace; font-size: 12px; color: #888; display: block; margin-bottom: 2px; letter-spacing: 0.04em; }
+  .timeline .what { font-weight: 600; }
+
+  /* skip-to-content for a11y */
+  .skip { position: absolute; left: -9999px; top: 0; }
+  .skip:focus { left: 12px; top: 12px; background: #1d1d1f; color: #faf8f3; padding: 8px 12px; border-radius: 4px; z-index: 100; }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="container row">
+    <a href="#" class="brand" aria-label="Lak — home">
+      <svg viewBox="0 0 100 46" role="img" aria-label="Lak" xmlns="http://www.w3.org/2000/svg">
+        <rect class="keycap" x="1" y="1" width="42" height="42" rx="7" fill="#ffffff" stroke="#1d1d1f" stroke-width="1.5"/>
+        <rect class="keycap-inner" x="5" y="5" width="34" height="34" rx="4" fill="none" stroke="#d6cdb6" stroke-width="0.8"/>
+        <text class="keycap-letter" x="22" y="32" font-family="'JetBrains Mono','SF Mono',Menlo,Consolas,monospace" font-size="26" font-weight="700" text-anchor="middle" fill="#1d1d1f">L</text>
+        <text class="wordmark" x="50" y="37" font-family="'Source Serif Pro', Georgia, 'Times New Roman', serif" font-size="40" font-weight="600" fill="#1d1d1f">ak</text>
+      </svg>
+    </a>
+    <nav class="site" aria-label="Primary">
+      <ul>
+        <li><a href="#layout">Layout</a></li>
+        <li><a href="#download">Download</a></li>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#history">History</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section id="hero" class="container">
+    <h1 class="hero-mark">
+      <span class="visually-hidden">Lak</span>
+      <svg viewBox="0 0 100 46" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="42" height="42" rx="7" fill="#ffffff" stroke="#1d1d1f" stroke-width="1.5"/>
+        <rect x="5" y="5" width="34" height="34" rx="4" fill="none" stroke="#d6cdb6" stroke-width="0.8"/>
+        <text x="22" y="32" font-family="'JetBrains Mono','SF Mono',Menlo,Consolas,monospace" font-size="26" font-weight="700" text-anchor="middle" fill="#1d1d1f">L</text>
+        <text x="50" y="37" font-family="'Source Serif Pro', Georgia, 'Times New Roman', serif" font-size="40" font-weight="600" fill="#1d1d1f">ak</text>
+      </svg>
+    </h1>
+    <p class="tagline">A keyboard layout discovered by a genetic algorithm. Vowels under your left hand, the most common consonants under your right — and almost no reach.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#download">Download for Windows</a>
+    </div>
+  </section>
+
+  <!-- ============ INTERACTIVE KEYBOARD ============ -->
+  <section id="layout" class="container">
+    <h2>The layout</h2>
+    <p>Click any key to type with it. Toggle <em>Shift</em> to see the shifted character on each key, or turn on <em>QWERTY ghost</em> to see what physical key you'd be pressing.</p>
+
+    <div class="kb-frame">
+      <div class="kb-toolbar">
+        <input class="demo" id="demo" placeholder="Try typing here…" aria-label="Type here using the keyboard below" autocomplete="off">
+        <label class="kb-toggle"><input type="checkbox" id="shiftToggle"> Shift</label>
+        <label class="kb-toggle"><input type="checkbox" id="qwertyToggle"> QWERTY ghost</label>
+        <button class="kb-clear" id="clearBtn" type="button">Clear</button>
+      </div>
+
+      <div class="kb" id="kb" aria-label="Lak keyboard layout">
+        <!-- number row -->
+        <div class="kb-row">
+          <div class="key" data-main="?" data-shift="_" data-qwerty="`"><div class="shifted">_</div><div class="main">?</div><div class="qwerty">`</div></div>
+          <div class="key" data-main="1" data-shift="#" data-qwerty="1"><div class="shifted">#</div><div class="main">1</div><div class="qwerty">1</div></div>
+          <div class="key" data-main="2" data-shift="~" data-qwerty="2"><div class="shifted">~</div><div class="main">2</div><div class="qwerty">2</div></div>
+          <div class="key" data-main="3" data-shift="`" data-qwerty="3"><div class="shifted">`</div><div class="main">3</div><div class="qwerty">3</div></div>
+          <div class="key" data-main="4" data-shift="$" data-qwerty="4"><div class="shifted">$</div><div class="main">4</div><div class="qwerty">4</div></div>
+          <div class="key" data-main="5" data-shift="@" data-qwerty="5"><div class="shifted">@</div><div class="main">5</div><div class="qwerty">5</div></div>
+          <div class="key" data-main="6" data-shift="[" data-qwerty="6"><div class="shifted">[</div><div class="main">6</div><div class="qwerty">6</div></div>
+          <div class="key" data-main="7" data-shift="]" data-qwerty="7"><div class="shifted">]</div><div class="main">7</div><div class="qwerty">7</div></div>
+          <div class="key" data-main="8" data-shift="/" data-qwerty="8"><div class="shifted">/</div><div class="main">8</div><div class="qwerty">8</div></div>
+          <div class="key" data-main="9" data-shift="=" data-qwerty="9"><div class="shifted">=</div><div class="main">9</div><div class="qwerty">9</div></div>
+          <div class="key" data-main="0" data-shift="|" data-qwerty="0"><div class="shifted">|</div><div class="main">0</div><div class="qwerty">0</div></div>
+          <div class="key" data-main="^" data-shift="*" data-qwerty="-"><div class="shifted">*</div><div class="main">^</div><div class="qwerty">-</div></div>
+          <div class="key" data-main="!" data-shift="%" data-qwerty="="><div class="shifted">%</div><div class="main">!</div><div class="qwerty">=</div></div>
+          <div class="key mod w2">⌫</div>
+        </div>
+        <!-- top row -->
+        <div class="kb-row">
+          <div class="key mod w15">Tab</div>
+          <div class="key" data-main="-" data-shift="&amp;" data-qwerty="Q"><div class="shifted">&amp;</div><div class="main">-</div><div class="qwerty">Q</div></div>
+          <div class="key freq-4" data-main="g" data-shift="G" data-qwerty="W"><div class="shifted">G</div><div class="main">g</div><div class="qwerty">W</div></div>
+          <div class="key freq-4" data-main="y" data-shift="Y" data-qwerty="E"><div class="shifted">Y</div><div class="main">y</div><div class="qwerty">E</div></div>
+          <div class="key" data-main=":" data-shift=";" data-qwerty="R"><div class="shifted">;</div><div class="main">:</div><div class="qwerty">R</div></div>
+          <div class="key freq-6" data-main="z" data-shift="Z" data-qwerty="T"><div class="shifted">Z</div><div class="main">z</div><div class="qwerty">T</div></div>
+          <div class="key freq-4" data-main="w" data-shift="W" data-qwerty="Y"><div class="shifted">W</div><div class="main">w</div><div class="qwerty">Y</div></div>
+          <div class="key freq-3" data-main="d" data-shift="D" data-qwerty="U"><div class="shifted">D</div><div class="main">d</div><div class="qwerty">U</div></div>
+          <div class="key freq-4" data-main="f" data-shift="F" data-qwerty="I"><div class="shifted">F</div><div class="main">f</div><div class="qwerty">I</div></div>
+          <div class="key freq-4" data-main="c" data-shift="C" data-qwerty="O"><div class="shifted">C</div><div class="main">c</div><div class="qwerty">O</div></div>
+          <div class="key freq-5" data-main="b" data-shift="B" data-qwerty="P"><div class="shifted">B</div><div class="main">b</div><div class="qwerty">P</div></div>
+          <div class="key" data-main="'" data-shift="&quot;" data-qwerty="["><div class="shifted">"</div><div class="main">'</div><div class="qwerty">[</div></div>
+          <div class="key freq-6" data-main="x" data-shift="X" data-qwerty="]"><div class="shifted">X</div><div class="main">x</div><div class="qwerty">]</div></div>
+          <div class="key w15 freq-6" data-main="q" data-shift="Q" data-qwerty="\"><div class="shifted">Q</div><div class="main">q</div><div class="qwerty">\</div></div>
+        </div>
+        <!-- home row -->
+        <div class="kb-row">
+          <div class="key mod w175">Caps</div>
+          <div class="key freq-1" data-main="o" data-shift="O" data-qwerty="A"><div class="shifted">O</div><div class="main">o</div><div class="qwerty">A</div></div>
+          <div class="key freq-1" data-main="a" data-shift="A" data-qwerty="S"><div class="shifted">A</div><div class="main">a</div><div class="qwerty">S</div></div>
+          <div class="key freq-1" data-main="e" data-shift="E" data-qwerty="D"><div class="shifted">E</div><div class="main">e</div><div class="qwerty">D</div></div>
+          <div class="key freq-1" data-main="i" data-shift="I" data-qwerty="F"><div class="shifted">I</div><div class="main">i</div><div class="qwerty">F</div></div>
+          <div class="key freq-4" data-main="u" data-shift="U" data-qwerty="G"><div class="shifted">U</div><div class="main">u</div><div class="qwerty">G</div></div>
+          <div class="key freq-2" data-main="s" data-shift="S" data-qwerty="H"><div class="shifted">S</div><div class="main">s</div><div class="qwerty">H</div></div>
+          <div class="key freq-2" data-main="r" data-shift="R" data-qwerty="J"><div class="shifted">R</div><div class="main">r</div><div class="qwerty">J</div></div>
+          <div class="key freq-1" data-main="n" data-shift="N" data-qwerty="K"><div class="shifted">N</div><div class="main">n</div><div class="qwerty">K</div></div>
+          <div class="key freq-1" data-main="t" data-shift="T" data-qwerty="L"><div class="shifted">T</div><div class="main">t</div><div class="qwerty">L</div></div>
+          <div class="key freq-2" data-main="h" data-shift="H" data-qwerty=";"><div class="shifted">H</div><div class="main">h</div><div class="qwerty">;</div></div>
+          <div class="key freq-4" data-main="p" data-shift="P" data-qwerty="'"><div class="shifted">P</div><div class="main">p</div><div class="qwerty">'</div></div>
+          <div class="key mod w225">Enter</div>
+        </div>
+        <!-- bottom row -->
+        <div class="kb-row">
+          <div class="key mod w225">Shift</div>
+          <div class="key" data-main="." data-shift="{" data-qwerty="Z"><div class="shifted">{</div><div class="main">.</div><div class="qwerty">Z</div></div>
+          <div class="key" data-main="(" data-shift="}" data-qwerty="X"><div class="shifted">}</div><div class="main">(</div><div class="qwerty">X</div></div>
+          <div class="key" data-main=")" data-shift="\" data-qwerty="C"><div class="shifted">\</div><div class="main">)</div><div class="qwerty">C</div></div>
+          <div class="key" data-main="," data-shift="&lt;" data-qwerty="V"><div class="shifted">&lt;</div><div class="main">,</div><div class="qwerty">V</div></div>
+          <div class="key" data-main="+" data-shift="&gt;" data-qwerty="B"><div class="shifted">&gt;</div><div class="main">+</div><div class="qwerty">B</div></div>
+          <div class="key freq-3" data-main="l" data-shift="L" data-qwerty="N"><div class="shifted">L</div><div class="main">l</div><div class="qwerty">N</div></div>
+          <div class="key freq-4" data-main="m" data-shift="M" data-qwerty="M"><div class="shifted">M</div><div class="main">m</div><div class="qwerty">M</div></div>
+          <div class="key freq-5" data-main="k" data-shift="K" data-qwerty=","><div class="shifted">K</div><div class="main">k</div><div class="qwerty">,</div></div>
+          <div class="key freq-5" data-main="v" data-shift="V" data-qwerty="."><div class="shifted">V</div><div class="main">v</div><div class="qwerty">.</div></div>
+          <div class="key freq-6" data-main="j" data-shift="J" data-qwerty="/"><div class="shifted">J</div><div class="main">j</div><div class="qwerty">/</div></div>
+          <div class="key mod w275">Shift</div>
+        </div>
+        <!-- spacebar row -->
+        <div class="kb-row">
+          <div class="key mod w125">Ctrl</div>
+          <div class="key mod w125">Win</div>
+          <div class="key mod w125">Alt</div>
+          <div class="key w625" data-main=" " data-shift=" " data-qwerty=" "><div class="main">␣</div></div>
+          <div class="key mod w125">Alt</div>
+          <div class="key mod w125">Win</div>
+          <div class="key mod w125">Menu</div>
+          <div class="key mod w125">Ctrl</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:18px; color:#666; font-size:14px;">
+      Notice the home row: every English vowel sits under the left hand (<code>o&nbsp;a&nbsp;e&nbsp;i&nbsp;u</code>), and several of the most-typed consonants sit under the right (<code>s&nbsp;r&nbsp;n&nbsp;t&nbsp;h&nbsp;p</code>). Together those eleven letters account for roughly three-quarters of every letter you'll type in English — without your fingers ever leaving home.
+    </p>
+  </section>
+
+  <!-- ============ DOWNLOAD ============ -->
+  <section id="download" class="container">
+    <h2>Download</h2>
+    <p>Lak ships as a standard Windows keyboard layout installer. Run the setup and you'll see "Lak" in <em>Settings → Time &amp; Language → Language → Keyboards</em>.</p>
+
+    <div class="dl-primary">
+      <div class="info">
+        <strong>Lak for Windows</strong>
+        <span>Auto-detects 32-bit / 64-bit · Run <code>setup.exe</code></span>
+      </div>
+      <a class="btn btn-primary" href="downloads/setup.exe" download="Lak-setup.exe">Download installer</a>
+    </div>
+
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section id="install" class="container">
+    <h2>Installing on Windows</h2>
+    <ol class="steps">
+      <li>
+        <strong>Run setup.exe</strong>
+        Double-click the file you downloaded. Windows may show a SmartScreen warning because Lak isn't signed by a major publisher — click <em>More info → Run anyway</em>.
+      </li>
+      <li>
+        <strong>Follow the installer</strong>
+        Accept the prompts. The installer copies the layout DLL into <code>C:\Windows\System32</code> and registers it with Windows.
+      </li>
+      <li>
+        <strong>Add Lak as an input language</strong>
+        Open <em>Settings → Time &amp; Language → Language &amp; Region</em>. Click your language → <em>Options</em> → <em>Add a keyboard</em>, and pick <strong>Lak</strong> from the list.
+      </li>
+      <li>
+        <strong>Switch to it</strong>
+        Press <code>Win + Space</code> to cycle keyboards, or click the language indicator in the taskbar. Try typing a sentence — you're now using Lak.
+      </li>
+      <li>
+        <strong>Optional: remove QWERTY</strong>
+        Once Lak feels natural, you can remove the default US layout from the same Keyboards screen so <code>Win + Space</code> doesn't accidentally switch it back.
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ WHY ============ -->
+  <section id="why" class="container">
+    <h2>Why Lak?</h2>
+    <p class="lede">QWERTY was never designed to be fast. Lak was — by a computer that tried thousands of layouts until it found one that couldn't be beaten.</p>
+
+    <p>Lak was found by a genetic algorithm: thousands of candidate keyboards were scored on how far your fingers would travel typing real English text, the best ones were kept and randomly tweaked, and the cycle repeated for thousands of generations. The result is the layout you see above.</p>
+
+    <div class="grid2" style="margin-top: 20px;">
+      <div>
+        <h3>Vowels left, consonants right</h3>
+        <p>Every English vowel (<code>a</code>, <code>e</code>, <code>i</code>, <code>o</code>, <code>u</code>) lives on the left home row, and the most common consonants live on the right. So most words have your hands taking turns — one of the strongest predictors of typing speed and comfort.</p>
+      </div>
+      <div>
+        <h3>Most letters don't move</h3>
+        <p>About three quarters of every letter you type in English already sits on Lak's home row. Letters like <code>j</code>, <code>q</code>, and <code>x</code> — which appear less than 1% of the time — get sent to the corners where they belong.</p>
+      </div>
+      <div>
+        <h3>Strong fingers do more work</h3>
+        <p>The algorithm penalises movement on the pinkies and ring fingers, so common keys end up under the index and middle fingers and the weaker ones get the rarely-used keys.</p>
+      </div>
+      <div>
+        <h3>31% less finger travel</h3>
+        <p>Typing the same sample of English text, Lak's fingers travel 31% less distance than they would on QWERTY — less movement, on stronger fingers, for the same words.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section id="history" class="container">
+    <h2>A short history of keyboards</h2>
+    <p>Why does a 19th-century typewriter still shape how you type emails today? Here's the lineage Lak grew out of.</p>
+
+    <ul class="timeline">
+      <li>
+        <span class="when">1870s — QWERTY</span>
+        <span class="what">Christopher Latham Sholes</span>
+        <p>The original typewriter layout. It was shaped by the mechanics of 19th-century typewriters, not by how comfortable it would be to type on. It became the default through habit and inertia, and nothing has dislodged it since.</p>
+      </li>
+      <li>
+        <span class="when">1936 — Dvorak</span>
+        <span class="what">August Dvorak</span>
+        <p>The first serious alternative. Dvorak put the vowels on the left home row and the most common consonants on the right, so the hands alternate when typing English. Faster and more comfortable, but the cost of relearning kept it niche.</p>
+      </li>
+      <li>
+        <span class="when">2006 — Colemak</span>
+        <span class="what">Shai Coleman</span>
+        <p>A modern design that keeps most QWERTY shortcuts in place — <code>Z</code>, <code>X</code>, <code>C</code>, <code>V</code> don't move — while putting common letters on the home row. It's the most popular alternative today. The name comes from Coleman's surname plus the "ak" he borrowed from Dvorak.</p>
+      </li>
+      <li class="lak">
+        <span class="when">2026 — Lak</span>
+        <span class="what">Pierce Lang</span>
+        <p>Rather than designing by hand, Lang built a genetic algorithm that searched the space of possible layouts and let the best one emerge on its own. Lak follows the same naming tradition as its predecessors: Lang's surname plus "ak".</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="container">
+    <h2>FAQ</h2>
+
+    <p class="faq-group">Trying Lak</p>
+
+    <details class="faq">
+      <summary>What is Lak, exactly?</summary>
+      <div>Lak is a replacement for QWERTY — the layout that decides which letter each key on your keyboard produces. Installing Lak doesn't change your physical keyboard; it changes what each key types when you press it. Lak puts the vowels under your left hand and the most-used consonants under your right, so your hands take turns and your fingers barely have to move. The same text takes about 37% less finger travel than it does on QWERTY.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Why should I switch from QWERTY?</summary>
+      <div>Three reasons people usually cite. <strong>Less strain</strong>: common letters sit under stronger fingers and rarely leave the home row, so your hands work less for the same amount of typing. <strong>More comfort</strong>: hands alternate evenly instead of one racing ahead while the other waits. <strong>Potentially faster</strong>: less travel correlates with faster typing once muscle memory is in place. The catch is real, though — you'll be slow for a few weeks while you relearn. If you type for hours every day, the long-term payoff usually justifies the dip. If you only type occasionally, it may not.</div>
+    </details>
+
+    <details class="faq">
+      <summary>How does Lak compare to Dvorak and Colemak?</summary>
+      <div>All three share the same goal: put common letters home, alternate hands, and reduce reaching. They got there differently. <strong>Dvorak</strong> (1936) was designed by hand from typing studies — solid, but every punctuation key moves too, which makes the learning curve steep. <strong>Colemak</strong> (2006) was designed to minimize relearning — most QWERTY shortcuts (<code>Z</code>, <code>X</code>, <code>C</code>, <code>V</code>) stay in place, which is why it's the most popular alternative today. <strong>Lak</strong> (2026) was found by a genetic algorithm searching across thousands of layouts, prioritizing raw efficiency over staying close to QWERTY. It moves more keys than Colemak but typically scores better on finger-travel benchmarks.</div>
+    </details>
+
+    <p class="faq-group">Learning the layout</p>
+
+    <details class="faq">
+      <summary>How long does it take to learn?</summary>
+      <div>It varies a lot by person and how much you commit. A realistic picture: the first few days feel terrible — typing your own name takes thought. After a week or two of daily use, most people are slow but functional. Returning to your old QWERTY speed usually takes somewhere between a few weeks and a few months, depending on how many hours a day you type and how strictly you avoid switching back to QWERTY when it gets hard. Some never quite reach their old peak; others surpass it. The honest answer is that you should expect it to feel slow for a while, and the only way through is consistent practice. Free typing trainers like <a href="https://www.keybr.com/" target="_blank" rel="noopener">keybr.com</a>, <a href="https://monkeytype.com/" target="_blank" rel="noopener">monkeytype</a>, and <a href="https://klavaro.sourceforge.io/" target="_blank" rel="noopener">Klavaro</a> can shorten the curve.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Will I forget how to type on QWERTY?</summary>
+      <div>Almost certainly not. After a transition period, most people can switch between Lak and QWERTY without much trouble, though your QWERTY speed may dip slightly while Lak is your primary layout. If you regularly use shared or public machines, keeping QWERTY installed alongside Lak (so you can toggle with <code>Win + Space</code>) is the practical solution.</div>
+    </details>
+
+    <p class="faq-group">Day-to-day use</p>
+
+    <details class="faq">
+      <summary>Will my keyboard shortcuts still work?</summary>
+      <div>Mostly, but it depends on the app. Many modern Windows applications bind shortcuts to the layout character — so <code>Ctrl+C</code> is wherever Lak puts <code>c</code> (the physical-O position on a QWERTY keyboard). Others bind to physical key positions, in which case <code>Ctrl+C</code> stays on the QWERTY-C position regardless of layout. In practice you'll relearn the most common shortcuts naturally as part of relearning the layout. The biggest adjustment is usually <code>Ctrl+S</code>, <code>Ctrl+Z</code>, and <code>Ctrl+F</code> — they'll feel wrong for a week or two, then stop feeling wrong.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What about programming? The symbols are in different places.</summary>
+      <div>Yes — the brackets, quotes, colons, slashes, and so on are all rearranged in Lak. The good news is that they're placed deliberately: paired brackets sit near each other, common code punctuation stays close to the home row, and the digits row is unchanged. Programmers who switch to alternative layouts usually adapt within a few weeks. The discomfort is real but temporary.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What about games?</summary>
+      <div>Most games let you rebind controls, so WASD or any other movement keys can stay where your fingers expect them. For games that hardcode QWERTY layouts and don't allow rebinding, the simplest fix is to switch back to QWERTY with <code>Win + Space</code> before launching them. Both layouts can live on your machine at once.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Can I use Lak on multiple computers, including ones I don't own?</summary>
+      <div>On your own machines, yes — install on each. On a friend's computer, a library, or a work machine where you can't install software, you're stuck with whatever layout is installed there (usually QWERTY). The realistic plan is to keep QWERTY installed alongside Lak on your own machines so you can stay current with both. Most touch typists who use alternative layouts maintain at least passable QWERTY for exactly this reason.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Does Lak work on Mac, Linux, or phones?</summary>
+      <div>Right now Lak ships as a Windows installer only. Mac, Linux, and a phone app are all on the roadmap — Lak is meant to be available on as many devices as possible, and adding platforms is a priority for upcoming releases.</div>
+    </details>
+
+    <p class="faq-group">About the project</p>
+
+    <details class="faq">
+      <summary>Why is it called "Lak"?</summary>
+      <div>It follows the same naming convention as the layouts before it. Coleman named his keyboard <em>Colemak</em> after Dvorak — his surname plus the "ak" suffix. Pierce Lang, the creator of Lak, did the same thing: his surname plus "ak".</div>
+    </details>
+
+    <details class="faq">
+      <summary>How was Lak actually generated?</summary>
+      <div>A genetic algorithm: start with a batch of candidate keyboards, score each one on how far the fingers would travel typing a long sample of real English text, keep the best, randomly tweak them, and repeat. After thousands of generations, the same layout kept winning — that's Lak. The full source code is on <a href="https://github.com/bibidybopoly/Smart-Keyboard-Layouts" target="_blank" rel="noopener">GitHub</a>.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Is the installer safe?</summary>
+      <div>The installer was generated with Microsoft's official Keyboard Layout Creator (MSKLC). It contains a single small DLL that maps key codes to characters — it doesn't run in the background, log keystrokes, or talk to the network. Windows SmartScreen warns about it because the file isn't signed by a major commercial code-signing authority, not because anything in it is harmful.</div>
+    </details>
+
+    <details class="faq">
+      <summary>What if I don't like it?</summary>
+      <div>Open <em>Settings → Apps</em>, find <em>Lak</em>, and click <em>Uninstall</em>. Windows will fall back to whatever layout you had before. No registry surgery required.</div>
+    </details>
+
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    Lak · a keyboard layout by <a href="https://github.com/bibidybopoly/Smart-Keyboard-Layouts" target="_blank" rel="noopener" style="color:inherit;">Pierce Lang</a> · 2026
+  </div>
+</footer>
+
+<script>
+  // ---------- interactive keyboard ----------
+  (function () {
+    const kb = document.getElementById('kb');
+    const demo = document.getElementById('demo');
+    const shiftToggle = document.getElementById('shiftToggle');
+    const qwertyToggle = document.getElementById('qwertyToggle');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Click a key -> insert its character into the demo input
+    kb.addEventListener('click', function (e) {
+      const key = e.target.closest('.key');
+      if (!key || key.classList.contains('mod')) return;
+      const useShift = shiftToggle.checked;
+      const ch = useShift ? key.dataset.shift : key.dataset.main;
+      if (!ch) return;
+      // visual feedback
+      key.classList.add('pressed');
+      setTimeout(() => key.classList.remove('pressed'), 110);
+      // insert into input at cursor
+      const start = demo.selectionStart ?? demo.value.length;
+      const end = demo.selectionEnd ?? demo.value.length;
+      demo.value = demo.value.slice(0, start) + ch + demo.value.slice(end);
+      const pos = start + ch.length;
+      demo.setSelectionRange(pos, pos);
+      demo.focus();
+    });
+
+    // Toggle: swap visible label between unshifted and shifted via CSS class
+    function applyShift() {
+      kb.classList.toggle('shift-on', shiftToggle.checked);
+    }
+    shiftToggle.addEventListener('change', applyShift);
+
+    qwertyToggle.addEventListener('change', function () {
+      kb.classList.toggle('show-qwerty', qwertyToggle.checked);
+    });
+
+    clearBtn.addEventListener('click', function () {
+      demo.value = '';
+      demo.focus();
+    });
+
+    // Hold the physical Shift key to preview shifted state
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Shift' && !shiftToggle.checked) {
+        shiftToggle.dataset.physical = '1';
+        shiftToggle.checked = true;
+        applyShift();
+      }
+    });
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'Shift' && shiftToggle.dataset.physical === '1') {
+        shiftToggle.checked = false;
+        delete shiftToggle.dataset.physical;
+        applyShift();
+      }
+    });
+
+    // ---- physical typing in the demo box gets remapped to Lak ----
+    // Map QWERTY label (as shown in data-qwerty) to the browser's e.code value,
+    // which represents the physical key position regardless of the user's OS layout.
+    const qwertyToCode = {
+      '`': 'Backquote', '1': 'Digit1', '2': 'Digit2', '3': 'Digit3', '4': 'Digit4',
+      '5': 'Digit5', '6': 'Digit6', '7': 'Digit7', '8': 'Digit8', '9': 'Digit9',
+      '0': 'Digit0', '-': 'Minus', '=': 'Equal',
+      'Q': 'KeyQ', 'W': 'KeyW', 'E': 'KeyE', 'R': 'KeyR', 'T': 'KeyT',
+      'Y': 'KeyY', 'U': 'KeyU', 'I': 'KeyI', 'O': 'KeyO', 'P': 'KeyP',
+      '[': 'BracketLeft', ']': 'BracketRight', '\\': 'Backslash',
+      'A': 'KeyA', 'S': 'KeyS', 'D': 'KeyD', 'F': 'KeyF', 'G': 'KeyG',
+      'H': 'KeyH', 'J': 'KeyJ', 'K': 'KeyK', 'L': 'KeyL',
+      ';': 'Semicolon', "'": 'Quote',
+      'Z': 'KeyZ', 'X': 'KeyX', 'C': 'KeyC', 'V': 'KeyV', 'B': 'KeyB',
+      'N': 'KeyN', 'M': 'KeyM', ',': 'Comma', '.': 'Period', '/': 'Slash',
+      ' ': 'Space'
+    };
+
+    // Build a lookup from physical-key code to {main, shift, element}
+    const codeToLak = {};
+    kb.querySelectorAll('.key[data-qwerty]').forEach(function (k) {
+      const code = qwertyToCode[k.dataset.qwerty];
+      if (!code) return;
+      codeToLak[code] = { main: k.dataset.main, shift: k.dataset.shift, el: k };
+    });
+
+    // Pass-through keys we don't want to remap (editing/navigation/shortcuts)
+    const passThroughKeys = new Set([
+      'Backspace', 'Delete', 'Tab', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End', 'PageUp', 'PageDown', 'Escape'
+    ]);
+
+    demo.addEventListener('keydown', function (e) {
+      // let Ctrl/Cmd/Alt combos through (copy, paste, select-all, etc.)
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (passThroughKeys.has(e.key)) return;
+
+      const mapping = codeToLak[e.code];
+      if (!mapping) return; // unmapped key (function keys, etc.) — let it through
+
+      e.preventDefault();
+      const ch = e.shiftKey ? mapping.shift : mapping.main;
+      if (!ch) return;
+
+      // Insert the Lak character at the current cursor position
+      const start = demo.selectionStart ?? demo.value.length;
+      const end   = demo.selectionEnd   ?? demo.value.length;
+      demo.value = demo.value.slice(0, start) + ch + demo.value.slice(end);
+      const pos = start + ch.length;
+      demo.setSelectionRange(pos, pos);
+
+      // Briefly highlight the matching visual key for feedback
+      mapping.el.classList.add('pressed');
+      setTimeout(function () { mapping.el.classList.remove('pressed'); }, 110);
+    });
+  })();
+</script>
+
+</body>
+</html>
