@@ -198,6 +198,9 @@
   .faq-group:first-of-type { margin-top: 12px; }
   details.faq { border-top: 1px solid #e8e2d3; padding: 14px 0; }
   details.faq:last-of-type { border-bottom: 1px solid #e8e2d3; }
+  .faq-contact { margin-top: 32px; text-align: center; color: #555; font-size: 0.98rem; }
+  .faq-contact a { color: #1f3a5f; font-weight: 500; }
+  .faq-contact a:hover { color: #c44536; }
   details.faq > summary { cursor: pointer; font-weight: 500; list-style: none; padding-right: 30px; position: relative; }
   details.faq > summary::-webkit-details-marker { display: none; }
   details.faq > summary::after {
@@ -378,7 +381,7 @@
     <div class="dl-primary">
       <div class="info">
         <strong>Lak for Windows</strong>
-        <span>Auto-detects 32-bit / 64-bit · Run <code>setup.exe</code></span>
+        <span>64-bit Windows · double-click <code>Lak.msi</code> to install</span>
       </div>
       <a class="btn btn-primary" href="downloads/Lak_V3_amd64.msi" download="Lak.msi">Download installer</a>
     </div>
@@ -390,8 +393,8 @@
     <h2>Installing on Windows</h2>
     <ol class="steps">
       <li>
-        <strong>Run setup.exe</strong>
-        Double-click the file you downloaded (Lak.msi). Windows may show a SmartScreen warning because Lak isn't signed by a major publisher — click <em>More info → Run anyway</em>.
+        <strong>Run Lak.msi</strong>
+        Right-click the file you downloaded and choose <em>Install</em> (or just double-click). Windows may show a SmartScreen warning because Lak isn't signed by a major publisher — click <em>More info → Run anyway</em>. If Windows says "the system administrator has set policies to prevent this installation," right-click the file → <em>Properties</em> → check <em>Unblock</em> at the bottom → <em>OK</em>, then try again.
       </li>
       <li>
         <strong>Follow the installer</strong>
@@ -550,6 +553,8 @@
       <summary>What if I don't like it?</summary>
       <div>Open <em>Settings → Apps</em>, find <em>Lak</em>, and click <em>Uninstall</em>. Windows will fall back to whatever layout you had before. No registry surgery required.</div>
     </details>
+
+    <p class="faq-contact">Still have questions? Email <a href="mailto:contact@lakkeyboard.com">contact@lakkeyboard.com</a>.</p>
 
   </section>
 
