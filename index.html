@@ -381,10 +381,12 @@
     <div class="dl-primary">
       <div class="info">
         <strong>Lak for Windows</strong>
-        <span>64-bit Windows · double-click <code>Lak.msi</code> to install</span>
+        <span>Windows 10 / 11 · double-click <code>Lak-installer.exe</code> to install</span>
       </div>
-      <a class="btn btn-primary" href="downloads/Lak_V3_amd64.msi" download="Lak.msi">Download installer</a>
+      <a class="btn btn-primary" href="downloads/Lak-installer.exe" download="Lak-installer.exe">Download installer</a>
     </div>
+
+    <p style="margin-top: 16px;"><strong>Heads up:</strong> if you have <em>Smart App Control</em> turned on (Windows 11), it will silently block the installer because Lak isn't signed by a commercial code-signing authority. Open <em>Settings → Privacy &amp; security → Windows Security → App &amp; browser control → Smart App Control settings</em> and switch it to <em>Off</em> before running the installer. (Note: Microsoft only lets you turn Smart App Control off once — turning it back on requires reinstalling Windows.)</p>
 
   </section>
 
@@ -393,12 +395,16 @@
     <h2>Installing on Windows</h2>
     <ol class="steps">
       <li>
-        <strong>Run Lak.msi</strong>
-        Right-click the file you downloaded and choose <em>Install</em> (or just double-click). Windows may show a SmartScreen warning because Lak isn't signed by a major publisher — click <em>More info → Run anyway</em>. If Windows says "the system administrator has set policies to prevent this installation," right-click the file → <em>Properties</em> → check <em>Unblock</em> at the bottom → <em>OK</em>, then try again.
+        <strong>Turn off Smart App Control (Windows 11 only)</strong>
+        If you're on Windows 11 with Smart App Control on, it will block the installer with no obvious error. Go to <em>Settings → Privacy &amp; security → Windows Security → App &amp; browser control → Smart App Control settings</em> and switch it to <em>Off</em>. Skip this step if you're on Windows 10 or already have it off.
+      </li>
+      <li>
+        <strong>Run Lak-installer.exe</strong>
+        Double-click the file you downloaded. Windows SmartScreen will show a warning because Lak isn't signed by a major publisher — click <em>More info → Run anyway</em>. If Windows says "the system administrator has set policies to prevent this installation," right-click the file → <em>Properties</em> → check <em>Unblock</em> at the bottom → <em>OK</em>, then try again.
       </li>
       <li>
         <strong>Follow the installer</strong>
-        Accept the prompts. The installer copies the layout DLL into <code>C:\Windows\System32</code> and registers it with Windows.
+        Accept the UAC prompt — admin rights are required to register a system keyboard layout. The installer copies the layout DLL into <code>C:\Windows\System32</code> and registers it with Windows.
       </li>
       <li>
         <strong>Add Lak as an input language</strong>
@@ -546,7 +552,7 @@
 
     <details class="faq">
       <summary>Is the installer safe?</summary>
-      <div>The installer was generated with Microsoft's official Keyboard Layout Creator (MSKLC). It contains a single small DLL that maps key codes to characters — it doesn't run in the background, log keystrokes, or talk to the network. Windows SmartScreen warns about it because the file isn't signed by a major commercial code-signing authority, not because anything in it is harmful.</div>
+      <div>The layout DLL itself was generated with Microsoft's official Keyboard Layout Creator (MSKLC), then packaged with <a href="https://jrsoftware.org/isinfo.php" target="_blank" rel="noopener">Inno Setup</a> so it works on modern Windows. It contains a single small DLL that maps key codes to characters — it doesn't run in the background, log keystrokes, or talk to the network. Windows SmartScreen (and Smart App Control) warn about it because the file isn't signed by a major commercial code-signing authority, not because anything in it is harmful.</div>
     </details>
 
     <details class="faq">
