@@ -398,7 +398,15 @@
 
     <p style="margin-top: 16px;"><strong>Mac heads up:</strong> macOS only scans for new keyboard layouts at login, so after you drop the file into <code>~/Library/Keyboard Layouts</code> you'll need to log out and log back in before Lak shows up in <em>System Settings → Keyboard → Input Sources</em>. Installation is per-user — no admin password required, and other accounts on the Mac are unaffected.</p>
 
-    <p style="margin-top: 16px; color: #666; font-size: 0.92rem;">Linux support is in the works — a community XKB port is coming next.</p>
+    <div class="dl-primary" style="margin-top: 28px;">
+      <div class="info">
+        <strong>Lak for Linux</strong>
+        <span>Any modern distro with X11 or Wayland · extract the tarball and run <code>./install.sh</code></span>
+      </div>
+      <a class="btn btn-primary" href="downloads/Lak-linux.tar.gz" download="Lak-linux.tar.gz">Download for Linux</a>
+    </div>
+
+    <p style="margin-top: 16px;"><strong>Linux heads up:</strong> the installer registers Lak as a system-wide XKB layout (it needs <code>sudo</code> to write to <code>/usr/share/X11/xkb/</code>), then Lak appears in <em>Settings → Keyboard → Input Sources</em> on GNOME, KDE, XFCE, Cinnamon, and so on. Requires <code>python3</code>, which ships on every desktop distro. Works on both X11 and Wayland sessions.</p>
 
   </section>
 
@@ -466,6 +474,41 @@
         Once Lak feels natural, you can select the US layout in the Input Sources list and click <em>−</em> to remove it, so <code>Ctrl + Space</code> doesn't accidentally switch you back.
       </li>
     </ol>
+  </section>
+
+  <!-- ============ INSTALL (Linux) ============ -->
+  <section id="install-linux" class="container">
+    <h2>Installing on Linux</h2>
+    <ol class="steps">
+      <li>
+        <strong>Extract the tarball</strong>
+        Open a terminal in your Downloads folder and run <code>tar xzf Lak-linux.tar.gz &amp;&amp; cd Lak-linux</code>. You'll get the XKB symbols file (<code>lak</code>), an installer, an uninstaller, and a README.
+      </li>
+      <li>
+        <strong>Run the installer</strong>
+        <code>chmod +x install.sh &amp;&amp; ./install.sh</code> — it will ask for your <code>sudo</code> password. The script copies <code>lak</code> into <code>/usr/share/X11/xkb/symbols/</code> and adds a layout entry to <code>/usr/share/X11/xkb/rules/evdev.xml</code> so your desktop's settings GUI can find it. Backups of any modified file are saved with a <code>.lak-backup</code> suffix.
+      </li>
+      <li>
+        <strong>Add Lak as an input source</strong>
+        Open your desktop's keyboard settings:<br>
+        <em>GNOME:</em> Settings → Keyboard → Input Sources → <em>+</em> → "Other" → "English (Lak)"<br>
+        <em>KDE:</em> System Settings → Keyboard → Layouts → Add Layout → "English (Lak)"<br>
+        <em>XFCE / Cinnamon:</em> Keyboard settings → Layouts tab → Add → pick "English (Lak)"
+      </li>
+      <li>
+        <strong>Switch to it</strong>
+        Press <code>Super + Space</code> (works on most desktops) or click the layout indicator in your panel. Try typing a sentence — you're now using Lak.
+      </li>
+      <li>
+        <strong>If Lak doesn't show up in the picker</strong>
+        Log out and log back in. GNOME, KDE, and friends cache the XKB rules database on login, so they only see new layouts after a fresh session starts.
+      </li>
+      <li>
+        <strong>Optional: remove QWERTY</strong>
+        Once Lak feels natural, remove the default US layout from the same Input Sources list so <code>Super + Space</code> doesn't cycle back to it.
+      </li>
+    </ol>
+    <p style="margin-top: 18px; color: #555; font-size: 0.95rem;">To uninstall later, run <code>./uninstall.sh</code> from the same extracted folder. It removes the symbols file and the registry entries; if backups exist, they're restored.</p>
   </section>
 
   <!-- ============ WHY ============ -->
@@ -582,7 +625,7 @@
 
     <details class="faq">
       <summary>Does Lak work on Mac, Linux, or phones?</summary>
-      <div>Lak ships for Windows and macOS today. The Mac version is a standard <code>.keylayout</code> file you drop into <code>~/Library/Keyboard Layouts</code> — no installer, no admin password. Linux (via XKB) and a phone app are next on the roadmap; Lak is meant to be available on as many devices as possible.</div>
+      <div>Lak ships for Windows, macOS, and Linux today. On Mac it's a <code>.keylayout</code> file you drop into <code>~/Library/Keyboard Layouts</code>. On Linux it's an XKB symbols file installed by a small <code>./install.sh</code> script. A phone app (iOS and Android) is next on the roadmap.</div>
     </details>
 
     <p class="faq-group">About the project</p>
