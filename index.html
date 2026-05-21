@@ -271,7 +271,7 @@
     </h1>
     <p class="tagline">A keyboard layout discovered by a genetic algorithm. Vowels under your left hand, the most common consonants under your right — and almost no reach.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#download">Download for Windows</a>
+      <a class="btn btn-primary" href="#download">Download Lak</a>
     </div>
   </section>
 
@@ -376,7 +376,7 @@
   <!-- ============ DOWNLOAD ============ -->
   <section id="download" class="container">
     <h2>Download</h2>
-    <p>Lak ships as a standard Windows keyboard layout installer. Run the setup and you'll see "Lak" in <em>Settings → Time &amp; Language → Language → Keyboards</em>.</p>
+    <p>Lak is available for Windows and macOS. Pick your platform below — install instructions for each are further down the page.</p>
 
     <div class="dl-primary">
       <div class="info">
@@ -386,7 +386,19 @@
       <a class="btn btn-primary" href="downloads/Lak-installer.exe" download="Lak-installer.exe">Download installer</a>
     </div>
 
-    <p style="margin-top: 16px;"><strong>Heads up:</strong> if you have <em>Smart App Control</em> turned on (Windows 11), it will silently block the installer because Lak isn't signed by a commercial code-signing authority. Open <em>Settings → Privacy &amp; security → Windows Security → App &amp; browser control → Smart App Control settings</em> and switch it to <em>Off</em> before running the installer. (Note: Microsoft only lets you turn Smart App Control off once — turning it back on requires reinstalling Windows.)</p>
+    <p style="margin-top: 16px;"><strong>Windows heads up:</strong> if you have <em>Smart App Control</em> turned on (Windows 11), it will silently block the installer because Lak isn't signed by a commercial code-signing authority. Open <em>Settings → Privacy &amp; security → Windows Security → App &amp; browser control → Smart App Control settings</em> and switch it to <em>Off</em> before running the installer. (Note: Microsoft only lets you turn Smart App Control off once — turning it back on requires reinstalling Windows.)</p>
+
+    <div class="dl-primary" style="margin-top: 28px;">
+      <div class="info">
+        <strong>Lak for macOS</strong>
+        <span>macOS 11 Big Sur or later · drop <code>Lak.keylayout</code> into your <code>~/Library/Keyboard Layouts</code> folder</span>
+      </div>
+      <a class="btn btn-primary" href="downloads/Lak-mac.zip" download="Lak-mac.zip">Download for Mac</a>
+    </div>
+
+    <p style="margin-top: 16px;"><strong>Mac heads up:</strong> macOS only scans for new keyboard layouts at login, so after you drop the file into <code>~/Library/Keyboard Layouts</code> you'll need to log out and log back in before Lak shows up in <em>System Settings → Keyboard → Input Sources</em>. Installation is per-user — no admin password required, and other accounts on the Mac are unaffected.</p>
+
+    <p style="margin-top: 16px; color: #666; font-size: 0.92rem;">Linux support is in the works — a community XKB port is coming next.</p>
 
   </section>
 
@@ -417,6 +429,41 @@
       <li>
         <strong>Optional: remove QWERTY</strong>
         Once Lak feels natural, you can remove the default US layout from the same Keyboards screen so <code>Win + Space</code> doesn't accidentally switch it back.
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ INSTALL (macOS) ============ -->
+  <section id="install-mac" class="container">
+    <h2>Installing on macOS</h2>
+    <ol class="steps">
+      <li>
+        <strong>Unzip the download</strong>
+        Double-click <code>Lak-mac.zip</code> in your Downloads folder. You'll get a folder containing <code>Lak.keylayout</code> and a README.
+      </li>
+      <li>
+        <strong>Open your Keyboard Layouts folder</strong>
+        In Finder, choose <em>Go → Go to Folder…</em> (or press <code>Shift + Cmd + G</code>) and enter <code>~/Library/Keyboard Layouts</code>. If the folder doesn't exist, create it.
+      </li>
+      <li>
+        <strong>Drag <code>Lak.keylayout</code> into that folder</strong>
+        That's the entire install — no admin password, no installer to run. The file is plain XML and stays in your home folder, so other accounts on the Mac are unaffected.
+      </li>
+      <li>
+        <strong>Log out and log back in</strong>
+        macOS only scans for new keyboard layouts at login. Without this step, Lak won't show up in System Settings. (A full restart works too.)
+      </li>
+      <li>
+        <strong>Add Lak as an input source</strong>
+        Open <em>System Settings → Keyboard</em>. Next to <em>Input Sources</em>, click <em>Edit…</em>, then the <em>+</em> button. Scroll to the <em>Others</em> group at the bottom of the language list and pick <strong>Lak</strong>. Click <em>Add</em>.
+      </li>
+      <li>
+        <strong>Switch to it</strong>
+        Press <code>Ctrl + Space</code> to cycle input sources, or click the input-source icon in the menu bar and choose Lak. Try typing a sentence — you're now using Lak.
+      </li>
+      <li>
+        <strong>Optional: remove QWERTY</strong>
+        Once Lak feels natural, you can select the US layout in the Input Sources list and click <em>−</em> to remove it, so <code>Ctrl + Space</code> doesn't accidentally switch you back.
       </li>
     </ol>
   </section>
@@ -535,7 +582,7 @@
 
     <details class="faq">
       <summary>Does Lak work on Mac, Linux, or phones?</summary>
-      <div>Right now Lak ships as a Windows installer only. Mac, Linux, and a phone app are all on the roadmap — Lak is meant to be available on as many devices as possible, and adding platforms is a priority for upcoming releases.</div>
+      <div>Lak ships for Windows and macOS today. The Mac version is a standard <code>.keylayout</code> file you drop into <code>~/Library/Keyboard Layouts</code> — no installer, no admin password. Linux (via XKB) and a phone app are next on the roadmap; Lak is meant to be available on as many devices as possible.</div>
     </details>
 
     <p class="faq-group">About the project</p>
